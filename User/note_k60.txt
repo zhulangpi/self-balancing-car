@@ -1,0 +1,99 @@
+
+void UART4_IRQHandler(void)
+{
+   uint8 buf=0; 
+   
+
+   buf = UART4_D;
+   UART4_D = buf;
+   UART4_S1 = UART4_S1;//读状态寄存器，清中断标志位
+   
+  
+}
+
+//bug汇总 http://www.vcan123.com/thread-1294-1-1.html
+
+
+
+电机PWM输出引脚 改
+
+OLED引脚 改
+
+测速为移植 王 的程序
+
+
+160505--19.00
+/************************横电感拟合**************************/
+void Sensor_Calc_Site(void)
+{
+    float left=SensorData_f0, mid=SensorData_f1, right=SensorData_f2;
+    float site0=0,site1=0,site2=0,temp=0,k0=0,k1=0,k2=0;
+    static float lastsite = 0;
+    if(((0==left) + (0==mid) + (0==right)) > 2)
+        return;
+  //*****site0*****
+    if(left == right)
+        site0 = 0;
+    else
+    {
+        temp=(left-right)/(left+right);
+        site0 = 50.1*powf(temp,3)-10.8*powf(temp,2)+12*temp+34.88 ;
+    }
+
+
+  //*****site2*****
+
+    if(mid == right)
+        site2 = 0;
+    else
+    {
+        temp=(mid-right)/(right+mid);
+        site2 = 43*powf(temp,3)-4.44*powf(temp,2)+24.9*temp+30.6;
+            
+    }
+
+  //*****site1*****
+
+    if(left == mid)
+        site1 = 0;
+    else
+    {
+        temp=(left-mid)/(mid+left);
+        if(site0>20)
+            site1 = 1859*powf(temp,3)+300*powf(temp,2)+42.7*temp+40;
+        else
+            site1 = -5620*powf(temp,3)-2561*powf(temp,2)-492.5*temp-27.44;
+
+    }
+
+    //site0   1-70  center0=34.88  center1= center2=30.6     site1转折点20
+  //*****计算权重*****
+    //site0 = (site0 - 34.88); 
+    k0 = 1;
+    site1 = (site1 - 40);
+    k1 = 1;
+    site2 = (site2 - 30.6);
+    k2 = 1;
+    
+    //lastsite = g_fSite;
+    g_fSite= site0;
+    //if(g_fSite-lastsite>10||g_fSite-lastsite<-10)
+        //g_fSite = lastsite;
+
+}
+
+
+
+f0==0     f1==2     f2==5
+
+   P5  P4  P3  P2  P1  P0
+
+RW5     RW3     RW2     RW0
+        RW4     RW1
+
+A5  A4  A3  A2  A1  A0  VCC GND
+
+PB0 PB1 PB2 PB3 PB4 PB5 VCC GND
+
+
+
