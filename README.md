@@ -1,2 +1,2 @@
 # self-balancing-car
-第十一届智能车大赛电磁平衡组
+基于MCU的裸机两轮自平衡车
